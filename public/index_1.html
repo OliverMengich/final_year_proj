@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Energy Meter</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="switch.css" />
+    <script
+      src="https://kit.fontawesome.com/3d5429939a.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="gauge-styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Arima:wght@700&family=Finlandica:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="tank.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- update the version number as needed -->
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
+    <link rel="icon" href="speedometer.png" />
+    <style>
+      @media screen and (max-width: 600px) {
+        .body-container {
+          flex-direction: row;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-container">
+        <div class="logo">
+          <h2>SMART ENERGY METER</h2>
+        </div>
+        <nav class="header-nav">
+          <ul>
+            <li>DR CHARLES KAGIRI</li>
+            <li>NICKSON WIRULA</li>
+            <li>MANANGA LORNACLAIRE</li>
+            <li>OLIVER KIPKEMEI</li>
+            <li>IAN GIBSON</li>
+            <li>DAN MUNENE</li>
+          </ul>
+        </nav>
+        <h1>GROUP 2</h1>
+      </div>
+    </header>
+    <section class="body-container">
+      <div style="position: sticky" class="components-info">
+        <div onclick="toggleLower(this)" class="component-status">
+          <h3>Water Pump: <span id="pumpOnReading"></span></h3>
+          <i onchange="handleChange(this)" class="fa-solid fa-angle-down"></i>
+        </div>
+        <div class="drop-down-details">
+          <p>Motor is: <span id="PumpOn"></span></p>
+          <label class="switch">
+            <input onchange="handleChange(this)" type="checkbox" />
+            <span class="slider1 round"></span>
+          </label>
+        </div>
+        <div onclick="toggleLower(this)" class="component-status">
+          <h1>Relay</h1>
+          <i class="fa-solid fa-angle-down"></i>
+        </div>
+        <div class="drop-down-details">
+          <h1><span id="relayOnReading"></span></h1>
+          <label class="switch">
+            <input onchange="handleChange(this)" type="checkbox" />
+            <span class="slider1 round"></span>
+          </label>
+        </div>
+      </div>
+      <div class="components-details">
+        <div class="components-styles">
+          <div class="contents">
+            <h2>Sensor Readings</h2>
+            <div class="names">
+              <h1>Water Pump is: <span id="isBoardOnReading"></span></h1>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              max-width: 120%;
+              flex-wrap: wrap;
+            "
+          >
+            <div class="meter-values">
+              <div class="meter-range">
+                <h3>Motor Speed</h3>
+                <div class="box gauge--3">
+                  <div class="mask">
+                    <div class="semi-circle"></div>
+                    <div class="semi-circle--mask motorSpeedRead"></div>
+                  </div>
+                </div>
+                <h1><span id="motorSpeedReading"></span> RPM</h1>
+              </div>
+            </div>
+            <div class="meter-values">
+              <div class="meter-range">
+                <h3>Power consumed</h3>
+                <div class="box gauge--3">
+                  <div class="mask">
+                    <div class="semi-circle"></div>
+                    <div class="semi-circle--mask powerConsumptionRead"></div>
+                  </div>
+                </div>
+                <h1><span id="powerConsumptionReading"></span> Watts</h1>
+              </div>
+            </div>
+            <div class="meter-values">
+              <div style="padding: 20px" class="meter-range">
+                <h3>Meter Temperature</h3>
+                <div style="padding: 15px">
+                  <i
+                    class="fa-solid fa-temperature-three-quarters"
+                    style="color: #059e8a; font-size: 80px"
+                  ></i>
+                </div>
+                <h1><span id="motorTempReading"></span>&#176;C</h1>
+              </div>
+            </div>
+            <div class="meter-values">
+              <div style="padding: 20px" class="meter-range">
+                <h3>Current Reading</h3>
+                <div class="box gauge--3">
+                  <div class="mask">
+                    <div class="semi-circle"></div>
+                    <div class="semi-circle--mask currSensorRead"></div>
+                  </div>
+                </div>
+                <h1><span id="currSensorReading"></span> AMPS</h1>
+              </div>
+            </div>
+            <div class="meter-values">
+              <div style="padding: 20px" class="meter-range">
+                <h3>VoltageReading</h3>
+                <div class="box gauge--3">
+                  <div class="mask">
+                    <div class="semi-circle"></div>
+                    <div class="semi-circle--mask voltageSensorRead"></div>
+                  </div>
+                </div>
+                <h1><span id="voltageSensorReading"></span>Volts</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="components-styles">
+          <canvas id="myChart"></canvas>
+        </div>
+        <div class="components-styles">
+          <div class="contents">
+            <h2>Overview</h2>
+            <div class="names">
+              <h3>Water level</h3>
+              <h4>Ultrasonic sensor</h4>
+            </div>
+          </div>
+          <div style="display: flex">
+            <div class="meter-values">
+              <div class="meter-range">
+                <h1>Sensor 1 Reading</h1>
+                <h1><span id="uss1Reading"></span> CM</h1>
+                <div class="tank">
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>100ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>80ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>60ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>40ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>20ltrs</h1>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="meter-values">
+              <div class="meter-range">
+                <h1>Sensor 2 Reading</h1>
+                <h1><span id="uss2Reading"></span> CM</h1>
+                <div class="tank">
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>100ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>80ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>60ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>40ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>20ltrs</h1>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="meter-values">
+              <div class="meter-range">
+                <h3>Sensor 3 Reading</h3>
+                <h4 class="uss3Reading">3</h4>
+                <div class="tank">
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>100ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>80ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>60ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>40ltrs</h1>
+                  </div>
+                  <div class="tank-fill" id="tank-fill-1">
+                    <h1>20ltrs</h1>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer></footer>
+    <script type="module" src="script.js"></script>
+    <script>
+      function toggleLower(el) {
+        var dropDown = el.nextElementSibling;
+        var x = document.getElementsByClassName("drop-down-details");
+        var divs = document.querySelectorAll(".drop-down-details");
+        var index = Array.from(divs).indexOf(dropDown);
+        if (x[index].style.display === "none") {
+          el.getElementsByTagName("i")[0].classList.remove("fa-angle-down");
+          el.getElementsByTagName("i")[0].classList.add("fa-angle-up");
+          x[index].style.display = "block";
+        } else {
+          el.getElementsByTagName("i")[0].classList.remove("fa-angle-up");
+          el.getElementsByTagName("i")[0].classList.add("fa-angle-down");
+          x[index].style.display = "none";
+        }
+      }
+      function goto(url) {
+        window.location = url;
+      }
+    </script>
+  </body>
+</html>
